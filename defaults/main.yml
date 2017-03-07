@@ -2,4 +2,5 @@
 KRB_REALM: EXAMPLE.COM
 KRB_SERVER: "{{ ansible_hostname }}"
 KRB_DOMAIN: "{{ ansible_domain }}"
+KRB_ADMIN: admin
 
