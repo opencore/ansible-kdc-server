@@ -1,2 +1,5 @@
 ---
-# defaults file for kdc-server
+KRB_REALM: EXAMPLE.COM
+KRB_SERVER: "{{ ansible_hostname }}"
+KRB_DOMAIN: "{{ ansible_domain }}"
+
