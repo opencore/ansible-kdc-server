@@ -1,43 +1,49 @@
 ---
 # Purpose: KDC server related settings
 #
-# Notes: 
+# Notes:
 #   - Assumes there is only one (1) KDC server node
 
 - name: Ensure Kerberos Server is installed
-  yum: name={{ item }} state=latest
-  with_items:
-   - krb5-server
-   - krb5-libs
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - krb5-server
+    - krb5-libs
 
 - name: Ensure config files are in place
-  template: 
-    src={{ item.src }}
-    dest={{ item.dest }}
-    mode={{ item.mode }}
-    owner=root
-    group=root
-  with_items:
-    - { src: 'var/kerberos/krb5kdc/kdc.conf.j2', dest: '/var/kerberos/krb5kdc/kdc.conf', mode: '0600'}
-    - { src: 'var/kerberos/krb5kdc/kadm5.acl.j2', dest: '/var/kerberos/krb5kdc/kadm5.acl', mode: '0600'}
-    - { src: 'etc/krb5.conf.j2', dest: '/etc/krb5.conf', mode: '0644'}
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: root
+    group: root
+  loop:
+    - { src: 'kdc.conf.j2', dest: '/var/kerberos/krb5kdc/kdc.conf', mode: '0600'}
+    - { src: 'kadm5.acl.j2', dest: '/var/kerberos/krb5kdc/kadm5.acl', mode: '0600'}
+    - { src: 'krb5.conf.j2', dest: '/etc/krb5.conf', mode: '0644'}
   notify:
   - restart kerberos
 
 - name: Check if KRB5 database needs to be generated
-  stat: path=/var/kerberos/krb5kdc/principal
+  stat:
+    path: /var/kerberos/krb5kdc/principal
   register: kdc_database
 
 - name: Ensure KDC database is created
   include: createkdb5.yml
-  when: (kdc_database.stat.exists is defined and not kdc_database.stat.exists) or kdc_database.stat.exists is not defined
-  
+  when: kdc_database.stat.exists == False
+
 - name: Ensure Kerberos services are started
-  service: name={{ item }} state=started enabled=yes
-  with_items:
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
     - krb5kdc
     - kadmin
 
 - name: Ensure principals are created
   include: createprincs.yml
-

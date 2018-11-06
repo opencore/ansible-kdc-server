@@ -1,20 +1,38 @@
 ---
 - name: Ensure rngd-tools are present
-  yum: name=rng-tools state=present
+  yum:
+    name: rng-tools
+    state: present
+  when: KRB_KDC_USE_RNGD
 
 - name: Configure rngd to use /dev/urandom since in virtualmachines there usually is no hardware source for random data
-  copy: src=etc/systemd/system/rngd.service dest=/etc/systemd/system/rngd.service owner=root group=root
+  copy:
+    src: rngd.service
+    dest: /etc/systemd/system/rngd.service
+    owner: root
+    group: root
+  when: KRB_KDC_USE_RNGD
 
 - name: Ensure rngd service is started
-  service: name=rngd state=started
+  service:
+    name: rngd
+    state: started
+  when: KRB_KDC_USE_RNGD
 
 - name: Ensure KDC database is created
-  command: "kdb5_util create -s -P {{ KRB_DB_PASSWORD }} creates=/var/kerberos/krb5kdc/principal"
+  command: kdb5_util create -s -P {{ KRB_DB_PASSWORD }}
+  args:
+    creates: /var/kerberos/krb5kdc/principal
 
 - name: Ensure rngd service is stopped
-  service: name=rngd state=stopped
+  service:
+    name: rngd
+    state: stopped
+  when: KRB_KDC_USE_RNGD
 
 # TODO: Only remove if it didn't already exist
 - name: Ensure rngd-tools are removed again
-  yum: name=rng-tools state=absent
-  
+  yum:
+    name: rng-tools
+    state: absent
+  when: KRB_KDC_USE_RNGD

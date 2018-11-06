@@ -1,7 +1,7 @@
 ---
 # Purpose: Creates the Kerberos principals needed
 #
-# Notes: 
+# Notes:
 #   - Executed on KDC server as it requires kadmin.local
 #   - The principal database must already exist
 
@@ -11,5 +11,5 @@
   changed_when: false
 
 - name: Ensure Admin principal exists
-  command: kadmin.local -q 'addprinc -pw krbsekret {{ KRB_ADMIN }}/admin@{{ KRB_REALM }}'
+  command: kadmin.local -q 'addprinc -pw {{ KRB_KDC_ADMIN_PASSWORD }} {{ KRB_ADMIN }}/admin@{{ KRB_REALM }}'
   when: "KRB_ADMIN ~ '/admin@' ~ KRB_REALM not in principal_list.stdout_lines"

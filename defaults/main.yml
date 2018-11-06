@@ -1,7 +1,9 @@
 ---
 KRB_REALM: "{{ ansible_domain | upper }}"
-KRB_SERVER: "{{ ansible_hostname }}"
+KRB_KDC_SERVER: "{{ ansible_hostname }}"
 KRB_DOMAIN: "{{ ansible_domain }}"
 KRB_ADMIN: admin
 KRB_DB_PASSWORD: krbsekret
 
+KRB_KDC_USE_RNGD: true
+KRB_KDC_ADMIN_PASSWORD: admin
